@@ -16,6 +16,8 @@ jsPsych.plugins['survey-likert'] = (function() {
 
     // default parameters for the trial
     trial.preamble = typeof trial.preamble === 'undefined' ? "" : trial.preamble;
+    trial.force_response = trial.force_response || false;
+    trial.reminder_alert = trial.reminder_alert || 'Please answer all items.';
 
     // if any trial variables are functions
     // this evaluates the function and replaces
@@ -45,6 +47,16 @@ jsPsych.plugins['survey-likert'] = (function() {
       options_string += '</ul>';
       form_element.append(options_string);
     }
+
+    var isResponseComplete = function(response_data){
+      var keys=Object.keys(response_data);
+      for(i=0;i<keys.length;i++){
+        if(response_data[keys[i]]==-1){
+          return false;
+        };
+      };
+      return true;
+    };
 
     // add submit button
     display_element.append($('<button>', {
@@ -76,10 +88,21 @@ jsPsych.plugins['survey-likert'] = (function() {
         "responses": JSON.stringify(question_data)
       };
 
-      display_element.html('');
 
-      // next trial
-      jsPsych.finishTrial(trial_data);
+      // check if forced response set true
+      if(trial.force_response){
+        // if forced response set to true, continue only if response complete
+          if (isResponseComplete(question_data)){
+            display_element.html('');
+            jsPsych.finishTrial(trial_data);
+          }else{
+            alert(trial.reminder_alert);
+          };
+      }else{
+        // if no forced response, next trial
+        display_element.html('');
+        jsPsych.finishTrial(trial_data);
+      };
     });
 
     var startTime = (new Date()).getTime();
