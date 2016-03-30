@@ -50,12 +50,16 @@ jsPsych.plugins['survey-likert'] = (function() {
 
     var isResponseComplete = function(response_data){
       var keys=Object.keys(response_data);
+      var resp=true;
       for(i=0;i<keys.length;i++){
         if(response_data[keys[i]]==-1){
-          return false;
+          var resp = false;
+          $('.jspsych-survey-likert-statement').eq(i).css({'background-color':'rgba(230,0,0,0.6)'});
+        }else{
+          $('.jspsych-survey-likert-statement').eq(i).css({'background-color':''});
         };
       };
-      return true;
+      return resp;
     };
 
     // add submit button
